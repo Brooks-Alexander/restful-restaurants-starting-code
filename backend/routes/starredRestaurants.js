@@ -1,7 +1,7 @@
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 const router = express.Router();
-const ALL_RESTAURANTS = require("./restaurants").restaurants;
+const { ALL_RESTAURANTS } = require("./restaurants");
 
 /**
  * A list of starred restaurants.
@@ -37,7 +37,7 @@ router.get("/", (req, res) => {
       return {
         id: starredRestaurant.id,
         comment: starredRestaurant.comment,
-        name: restaurant ? restaurant.name : null, //checks if restaurant is true before trying to access the name
+        name: restaurant.name, 
       };
     }
   );
@@ -57,15 +57,7 @@ router.get("/:id", (req, res) => {
     return res.status(404).json({ error: "Starred restaurant not found" });
   }
 
-  const restaurant = ALL_RESTAURANTS.find(
-    (restaurant) => restaurant.id === starredRestaurant.restaurantId
-  );
-
-  res.json({
-    id: starredRestaurant.id,
-    comment: starredRestaurant.comment,
-    name: restaurant.name,
-  });
+  res.json(restaurant);
 });
 
 /**
@@ -73,14 +65,20 @@ router.get("/:id", (req, res) => {
  */
 router.post("/", (req, res) => {
   const { body } = req;
-  const { restaurantId, comment } = body;
+  const { id, restaurantId, comment } = body;
   
+  const restaurant = ALL_RESTAURANTS.find((restaurant) => restaurant.id === id);
+
+  if (!restaurant) {
+    res.sendStatus(404);
+    return;
+  }
   // Generate a unique ID for the new starred restaurant.
   const newId = uuidv4();
   const newStarredRestaurant = {
     id: newId,
-    restaurantId,
-    comment,
+    restaurantId: restaurant.id,
+    comment: null,
   };
 
   // Add the new starred restaurant to the list.

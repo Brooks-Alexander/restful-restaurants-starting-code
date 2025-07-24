@@ -102,5 +102,7 @@ router.put("/:id", (req, res) => {
 });
 
 
-exports.router = router;
-exports.restaurants = ALL_RESTAURANTS;
+module.exports = {
+  router,
+  ALL_RESTAURANTS
+};
